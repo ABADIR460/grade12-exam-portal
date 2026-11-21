@@ -16,29 +16,93 @@
 
 <section class="hero">
   <h1>Student Login</h1>
-  <p>Login to access your examination portal.</p>
+  <p>Login to Your Examination Account</p>
 </section>
 
-<section style="max-width:400px;margin:40px auto;padding:25px;background:white;border-radius:12px;">
-  <form id="loginForm">
-    <label>Student ID</label>
-    <input type="text" id="studentId" placeholder="Enter Student ID" required>
+<section style="max-width:450px;margin:40px auto;padding:25px;background:white;border-radius:12px;">
 
-    <br><br>
+<form id="loginForm">
 
-    <label>Password</label>
-    <input type="password" id="password" placeholder="Enter Password" required>
+  <label>Student ID</label>
+  <input type="text" id="studentId"
+    placeholder="Enter Student ID" required>
 
-    <br><br>
+  <br><br>
 
-    <button type="submit" class="btn">Login</button>
-    <p id="message"></p>
-  </form>
+  <label>Password</label>
+  <input type="password" id="password"
+    placeholder="Enter Password" required>
+
+  <br><br>
+
+  <button type="submit" class="btn" id="loginBtn">
+    Login
+  </button>
+
+  <p id="message"></p>
+
+  <p>New student? <a href="register.html">Register Here</a></p>
+
+</form>
 </section>
 
 <footer>
   <p>© 2026 Grade 12 Exam Portal</p>
 </footer>
+
+<script>
+const API = "https://grade12-exam-backend.onrender.com";
+
+document.getElementById("loginForm")
+.addEventListener("submit", async function(e) {
+
+  e.preventDefault();
+
+  const message = document.getElementById("message");
+  const button = document.getElementById("loginBtn");
+
+  button.disabled = true;
+  message.textContent = "Please wait...";
+
+  try {
+
+    const response = await fetch(API + "/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        student_id: document.getElementById("studentId").value.trim(),
+        password: document.getElementById("password").value
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Login failed");
+    }
+
+    sessionStorage.setItem("studentToken", result.token);
+    sessionStorage.setItem(
+      "studentName",
+      result.student.full_name
+    );
+
+    message.style.color = "green";
+    message.textContent = "Login successful!";
+
+  } catch (error) {
+
+    message.style.color = "red";
+    message.textContent = error.message;
+
+  }
+
+  button.disabled = false;
+
+});
+</script>
 
 </body>
 </html>
