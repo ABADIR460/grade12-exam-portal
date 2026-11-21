@@ -1,1 +1,54 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header>
+    <h2>Grade 12 Exam Portal</h2>
+  </header>
+
+  <main class="container">
+    <h1>Student Dashboard</h1>
+
+    <div class="card">
+      <h2>Welcome, <span id="studentName">Student</span>!</h2>
+      <p>You are successfully logged in.</p>
+    </div>
+
+    <div class="card">
+      <h3>My Learning</h3>
+      <p><a href="exams.html">My Exams</a></p>
+      <p><a href="results.html">My Results</a></p>
+    </div>
+
+    <button id="logoutBtn">Logout</button>
+    <p id="message"></p>
+  </main>
+
+  <script>
+    const token = sessionStorage.getItem("studentToken");
+    const name = sessionStorage.getItem("studentName");
+
+    if (!token) {
+      window.location.href = "login.html";
+    }
+
+    document.getElementById("studentName").textContent =
+      name || "Student";
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("studentToken");
+      sessionStorage.removeItem("studentName");
+      window.location.href = "login.html";
+    });
+  </script>
+
+</body>
+</html>
+
