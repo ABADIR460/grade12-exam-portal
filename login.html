@@ -78,21 +78,17 @@ document.getElementById("loginForm")
     });
 
     const result = await response.json();
+if (response.ok) {
+  sessionStorage.setItem("studentToken", data.token);
+  sessionStorage.setItem("studentName", data.student.full_name);
 
-    if (!response.ok) {
-      throw new Error(result.message || "Login failed");
-    }
+  message.textContent = "Login successful!";
 
-    sessionStorage.setItem("studentToken", result.token);
-    sessionStorage.setItem(
-      "studentName",
-      result.student.full_name
-    );
-
-    message.style.color = "green";
-    message.textContent = "Login successful!";
-
-  } catch (error) {
+  setTimeout(() => {
+    window.location.href = "dashboard.html";
+  }, 1000);
+}
+    catch (error) {
 
     message.style.color = "red";
     message.textContent = error.message;
