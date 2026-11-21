@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Exams | Grade 12</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h2>Grade 12 Exam Portal</h2>
+  <a href="dashboard.html">Dashboard</a>
+</header>
+
+<main class="container">
+  <h1>Available Exams</h1>
+  <p>Select an exam to continue.</p>
+
+  <div id="examList">
+    Loading exams...
+  </div>
+
+  <p id="message"></p>
+</main>
+
+<script>
+const API = "https://grade12-exam-backend.onrender.com";
+const token = sessionStorage.getItem("studentToken");
+
+if (!token) {
+  window.location.href = "login.html";
+}
+
+async function loadExams() {
+  const list = document.getElementById("examList");
+  const message = document.getElementById("message");
+
+  try {
+    const response = await fetch(API + "/api/exams");
+    const exams = await response.json();
+
+    if (!response.ok) {
+      throw new Error(exams.message || "Could not load exams");
+    }
+
+    list.innerHTML = "";
+
+    if (!exams.length) {
+      list.textContent = "No published exams available.";
+      return;
+    }
+
+    exams.forEach(exam => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("h3");
+      title.textContent = exam.title;
+
+      const duration = document.createElement("p");
+      duration.textContent =
+        "Duration: " + exam.duration_minutes + " minutes";
+
+      card.append(title, duration);
+      list.appendChild(card);
+    });
+
+  } catch (error) {
+    message.textContent = error.message;
+  }
+}
+
+loadExams();
+</script>
+
+</body>
+</html>
