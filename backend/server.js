@@ -352,6 +352,45 @@ if (parts.length === 2) {
     usernameConfigured: !!process.env.ADMIN_USERNAME,
     passwordHashConfigured: !!process.env.ADMIN_PASSWORD_HASH
   });
+});// Admin: View All Students
+app.get("/api/admin/students", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { data, error } = await db
+      .from("students")
+      .select("id,student_id,full_name,email")
+      .order("id", { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data);
+
+  } catch (error) {
+    console.error("Students error:", error.message);
+
+    res.status(500).json({
+      message: "Could not load students"
+    });
+  }
 });
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
