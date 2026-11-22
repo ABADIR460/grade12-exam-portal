@@ -63,9 +63,18 @@ async function loadExams() {
       duration.textContent =
         "Duration: " + exam.duration_minutes + " minutes";
 
-      card.append(title, duration);
-      list.appendChild(card);
-    });
+      
+const startButton = document.createElement("button");
+startButton.textContent = "Start Exam";
+
+startButton.addEventListener("click", () => {
+  window.location.href = "exam.html?id=" +
+    encodeURIComponent(exam.id);
+});
+
+card.append(title, duration, startButton);
+list.appendChild(card);
+});
 
   } catch (error) {
     message.textContent = error.message;
