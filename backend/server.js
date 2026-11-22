@@ -212,6 +212,73 @@ app.get("/api/exams", async (req, res) => {
 });
 
 // Start Server
+// Submit Exam Results
+app.post("/api/exams/:id/submit", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const examId = req.params.id;
+    const { answers } = req.body;
+
+    if (!Array.isArray(answers)) {
+      return res.status(400).json({ message: "Invalid answers" });
+    }
+
+    const { data: questions, error: questionError } = await db
+      .from("questions")
+      .select("id, correct_answer, marks")
+      .eq("exam_id", examId);
+
+    if (questionError) throw questionError;
+
+    let score = 0;
+    let totalMarks = 0;
+
+    questions.forEach(question => {
+      totalMarks += question.marks || 1;
+
+      const studentAnswer = answers.find(
+        a => a.question_id === question.id
+      );
+
+      if (
+        studentAnswer &&
+        studentAnswer.answer === question.correct_answer
+      ) {
+        score += question.marks || 1;
+      }
+    });
+
+    const { error: saveError } = await db
+      .from("results")
+      .insert({
+        student_id: decoded.id,
+        exam_id: examId,
+        score,
+        total_marks: totalMarks,
+        answers
+      });
+
+    if (saveError) throw saveError;
+
+    res.json({
+      message: "Exam submitted successfully",
+      score,
+      total_marks: totalMarks
+    });
+
+  } catch (error) {
+    console.error("Submit exam error:", error);
+    res.status(500).json({ message: "Could not submit exam" });
+  }
+});
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
 });
