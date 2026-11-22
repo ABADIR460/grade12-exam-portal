@@ -278,6 +278,53 @@ app.post("/api/exams/:id/submit", async (req, res) => {
     console.error("Submit exam error:", error);
     res.status(500).json({ message: "Could not submit exam" });
   }
+});// Admin Login
+app.post("/api/admin/login", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!process.env.ADMIN_USERNAME ||
+        !process.env.ADMIN_PASSWORD_HASH) {
+      return res.status(500).json({
+        message: "Admin environment variables are missing"
+      });
+    }
+
+    if (username !== process.env.ADMIN_USERNAME) {
+      return res.status(401).json({
+        message: "Invalid username or password"
+      });
+    }
+
+    const validPassword = await bcrypt.compare(
+      password,
+      process.env.ADMIN_PASSWORD_HASH
+    );
+
+    if (!validPassword) {
+      return res.status(401).json({
+        message: "Invalid username or password"
+      });
+    }
+
+    const token = jwt.sign(
+      { role: "admin" },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    res.json({
+      message: "Admin login successful",
+      token
+    });
+
+  } catch (error) {
+    console.error("Admin login error:", error.message);
+
+    res.status(500).json({
+      message: "Admin login failed"
+    });
+  }
 });
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
