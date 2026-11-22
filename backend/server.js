@@ -189,6 +189,28 @@ app.get("/api/exams/:id/questions", async (req, res) => {
   }
 });
 
+// Public: List published exams
+app.get("/api/exams", async (req, res) => {
+  try {
+    const { data, error } = await db
+      .from("exams")
+      .select("id, title, course_name, duration_minutes")
+      .eq("is_published", true)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data || []);
+
+  } catch (error) {
+    console.error("Load exams error:", error.message);
+
+    res.status(500).json({
+      message: "Could not load exams"
+    });
+  }
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
