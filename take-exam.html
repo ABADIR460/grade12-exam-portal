@@ -124,24 +124,59 @@ function startTimer() {
       message.textContent = "Time is over.";
     }
   }, 1000);
-}document.getElementById("examForm").addEventListener("submit", async function(e) {
+ }
+ document.getElementById("examForm").addEventListener("submit", async function(e) {
   e.preventDefault();
 
+  const submitBtn = document.getElementById("submitBtn");
   message.textContent = "Submitting exam...";
+  submitBtn.disabled = true;
 
-  const answers = [];
+  try {
+    const answers = [];
 
-  document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
-    answers.push({
-      question_id: input.name,
-      answer: input.value
+    document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+      answers.push({
+        question_id: input.name,
+        answer: input.value
+      });
     });
-  });
 
-  console.log("Student answers:", answers);
+    const token = sessionStorage.getItem("studentToken");
 
-  message.textContent = "Answers collected successfully!";
-});
+    if (!token) {
+      throw new Error("Please login again.");
+    }
+
+    const response = await fetch(
+      API + "/api/exams/" + encodeURIComponent(examId) + "/submit",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ answers })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Submission failed");
+    }
+
+    clearInterval(timerInterval);
+
+    message.textContent =
+      "Exam submitted successfully! Your score: " +
+      result.score + " / " + result.total_marks;
+
+  } catch (error) {
+    message.textContent = error.message;
+    submitBtn.disabled = false;
+  }
+}); 
 </script>
 
 </body>
