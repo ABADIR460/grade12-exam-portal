@@ -1,0 +1,88 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Grade 12 Exam Portal</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      margin: 0;
+      padding: 20px;
+    }
+    header {
+      background: #123b70;
+      color: white;
+      padding: 20px;
+      border-radius: 10px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    input, button {
+      padding: 12px;
+      margin: 6px 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    button {
+      background: #123b70;
+      color: white;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #dashboard { display: none; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h2>Grade 12 Exam Portal</h2>
+  <p>Admin Dashboard</p>
+</header>
+
+<section class="card" id="loginSection">
+  <h3>Admin Login</h3>
+  <form id="loginForm">
+    <input id="username" placeholder="Username" required>
+    <input id="password" type="password"
+      placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+  <p id="message"></p>
+</section>
+
+<section id="dashboard">
+  <div class="card">
+    <h2>Welcome Admin</h2>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="card">
+    <h3>Student Management</h3>
+    <button onclick="loadStudents()">View Students</button>
+    <div id="studentsList"></div>
+  </div>
+
+  <div class="card">
+    <h3>Exam Management</h3>
+    <button onclick="loadExams()">View Exams</button>
+    <div id="examsList"></div>
+  </div>
+
+  <div class="card">
+    <h3>Exam Results</h3>
+    <button onclick="loadResults()">View Results</button>
+    <div id="resultsList"></div>
+  </div>
+</section>
+
+<script src="admin.js"></script>
+</body>
+</html>
