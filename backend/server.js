@@ -296,10 +296,31 @@ app.post("/api/admin/login", async (req, res) => {
       });
     }
 
-    const validPassword = await bcrypt.compare(
-      password,
-      process.env.ADMIN_PASSWORD_HASH
+    const storedHash = process.env.ADMIN_PASSWORD_HASH || "";
+const parts = storedHash.split(":");
+
+let validPassword = false;
+
+if (parts.length === 2) {
+  const [salt, savedHash] = parts;
+
+  const calculatedHash = crypto
+    .scryptSync(password, salt, 64)
+    .toString("hex");
+
+  const savedBuffer = Buffer.from(savedHash, "hex");
+  const calculatedBuffer = Buffer.from(calculatedHash, "hex");
+
+  if (
+    savedBuffer.length === calculatedBuffer.length &&
+    savedBuffer.length === 64
+  ) {
+    validPassword = crypto.timingSafeEqual(
+      savedBuffer,
+      calculatedBuffer
     );
+  }
+}
 
     if (!validPassword) {
       return res.status(401).json({
