@@ -151,6 +151,44 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// Get questions for a published exam
+app.get("/api/exams/:id/questions", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const { data: exam, error: examError } = await db
+      .from("exams")
+      .select("id, title, duration_minutes")
+      .eq("id", id)
+      .eq("is_published", true)
+      .single();
+
+    if (examError || !exam) {
+      return res.status(404).json({
+        message: "Exam not found or not published"
+      });
+    }
+
+    const { data: questions, error } = await db
+      .from("questions")
+      .select("id, question_text, option_a, option_b, option_c, option_d, marks")
+      .eq("exam_id", id);
+
+    if (error) throw error;
+
+    res.json({
+      exam,
+      questions
+    });
+
+  } catch (error) {
+    console.error("Questions error:", error.message);
+    res.status(500).json({
+      message: "Could not load exam questions"
+    });
+  }
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
