@@ -68,8 +68,8 @@ const startButton = document.createElement("button");
 startButton.textContent = "Start Exam";
 
 startButton.addEventListener("click", () => {
-  window.location.href = "exam.html?id=" +
-    encodeURIComponent(exam.id);
+  window.location.href = "take-exam.html?id=" +
+  encodeURIComponent(exam.id);
 });
 
 card.append(title, duration, startButton);
