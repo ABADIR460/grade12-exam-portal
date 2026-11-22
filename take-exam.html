@@ -1,1 +1,132 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Take Exam | Grade 12</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h2>Grade 12 Exam Portal</h2>
+  <a href="dashboard.html">Dashboard</a>
+</header>
+
+<main class="container">
+  <h1 id="examTitle">Loading Exam...</h1>
+  <p id="timer">Time: --:--</p>
+
+  <form id="examForm">
+    <div id="questions"></div>
+    <button type="submit" id="submitBtn">Submit Exam</button>
+  </form>
+
+  <p id="message"></p>
+</main>
+
+<script>
+const API = "https://grade12-exam-backend.onrender.com";
+const token = sessionStorage.getItem("studentToken");
+const examId = new URLSearchParams(location.search).get("id");
+
+const questionsBox = document.getElementById("questions");
+const message = document.getElementById("message");
+
+let remainingSeconds = 0;
+let timerInterval;
+
+if (!token) {
+  location.href = "login.html";
+}
+
+if (!examId) {
+  message.textContent = "Exam ID is missing.";
+} else {
+  loadExam();
+}
+
+async function loadExam() {
+  try {
+    const response = await fetch(
+      API + "/api/exams/" + encodeURIComponent(examId) + "/questions"
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Could not load exam");
+    }
+
+    document.getElementById("examTitle").textContent =
+      data.exam.title;
+
+    if (!data.questions || data.questions.length === 0) {
+      questionsBox.textContent = "No questions available.";
+      return;
+    }
+
+    remainingSeconds = data.exam.duration_minutes * 60;
+
+    data.questions.forEach((q, index) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const heading = document.createElement("h3");
+      heading.textContent =
+        (index + 1) + ". " + q.question_text;
+
+      card.appendChild(heading);
+
+      ["A", "B", "C", "D"].forEach(letter => {
+        const label = document.createElement("label");
+        const radio = document.createElement("input");
+
+        radio.type = "radio";
+        radio.name = "question_" + q.id;
+        radio.value = letter;
+
+        label.append(
+          radio,
+          document.createTextNode(
+            " " + letter + ". " + q["option_" + letter.toLowerCase()]
+          )
+        );
+
+        card.appendChild(label);
+        card.appendChild(document.createElement("br"));
+      });
+
+      questionsBox.appendChild(card);
+    });
+
+    startTimer();
+
+  } catch (error) {
+    message.textContent = error.message;
+  }
+}
+
+function startTimer() {
+  timerInterval = setInterval(() => {
+    remainingSeconds--;
+
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+
+    document.getElementById("timer").textContent =
+      "Time: " + minutes + ":" + String(seconds).padStart(2, "0");
+
+    if (remainingSeconds <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById("submitBtn").disabled = true;
+      message.textContent = "Time is over.";
+    }
+  }, 1000);
+}
+</script>
+
+</body>
+</html>
+
