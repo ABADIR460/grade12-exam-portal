@@ -325,6 +325,12 @@ app.post("/api/admin/login", async (req, res) => {
       message: "Admin login failed"
     });
   }
+});app.get("/api/admin/setup-check", (req, res) => {
+  res.json({
+    bcryptReady: true,
+    usernameConfigured: !!process.env.ADMIN_USERNAME,
+    passwordHashConfigured: !!process.env.ADMIN_PASSWORD_HASH
+  });
 });
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
