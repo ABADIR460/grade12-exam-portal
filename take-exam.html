@@ -124,7 +124,24 @@ function startTimer() {
       message.textContent = "Time is over.";
     }
   }, 1000);
-}
+}document.getElementById("examForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  message.textContent = "Submitting exam...";
+
+  const answers = [];
+
+  document.querySelectorAll('input[type="radio"]:checked').forEach(input => {
+    answers.push({
+      question_id: input.name,
+      answer: input.value
+    });
+  });
+
+  console.log("Student answers:", answers);
+
+  message.textContent = "Answers collected successfully!";
+});
 </script>
 
 </body>
