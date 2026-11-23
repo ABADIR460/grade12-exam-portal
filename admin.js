@@ -244,3 +244,32 @@ async function loadResults() {
 if (adminToken) {
   showDashboard();
 }
+async function toggleExamPublish(examId, publishStatus) {
+  try {
+    const response = await fetch(
+      API + "/api/admin/exams/" + encodeURIComponent(examId) + "/publish",
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + adminToken
+        },
+        body: JSON.stringify({
+          is_published: publishStatus
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Could not update exam");
+    }
+
+    alert(data.message || "Exam status updated successfully!");
+    loadExams();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
