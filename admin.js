@@ -265,7 +265,12 @@ async function loadResults() {
       card.className = "card";
 
       const student = document.createElement("p");
-      student.textContent = "Student ID: " + result.student_id;
+student.textContent =
+  "Student: " + (result.students?.full_name || result.student_id);
+
+const email = document.createElement("p");
+email.textContent =
+  "Email: " + (result.students?.email || "Not available");
 
       const exam = document.createElement("p");
       exam.textContent = "Exam: " + (result.exams?.title || result.exam_id);
@@ -277,8 +282,8 @@ async function loadResults() {
       const date = document.createElement("p");
       date.textContent = "Submitted: " +
         new Date(result.submitted_at).toLocaleString();
-
-      card.append(student, exam, score, date);
+card.append(student, email, exam, score, date);
+    
       list.appendChild(card);
     });
 
