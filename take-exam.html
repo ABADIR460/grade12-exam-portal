@@ -84,7 +84,7 @@ async function loadExam() {
         const radio = document.createElement("input");
 
         radio.type = "radio";
-        radio.name = "question_" + q.id;
+        radio.name = q.id;
         radio.value = letter;
 
         label.append(
