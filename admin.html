@@ -70,11 +70,48 @@
     <div id="studentsList"></div>
   </div>
 
-  <div class="card">
-    <h3>Exam Management</h3>
-    <button onclick="loadExams()">View Exams</button>
-    <div id="examsList"></div>
+<div class="card">
+  <h3>Exam Management</h3>
+
+  <button onclick="loadExams()">View Exams</button>
+
+  <button onclick="showCreateExam()">
+    Create New Exam
+  </button>
+
+  <div id="createExamForm" style="display:none;">
+    <h3>Create New Exam</h3>
+
+    <form id="examForm">
+      <input
+        type="text"
+        id="examTitle"
+        placeholder="Exam Title"
+        required
+      >
+
+      <input
+        type="text"
+        id="courseName"
+        placeholder="Course Name"
+        required
+      >
+
+      <input
+        type="number"
+        id="examDuration"
+        placeholder="Duration in minutes"
+        required
+      >
+
+      <button type="submit">Save Exam</button>
+    </form>
+
+    <p id="examMessage"></p>
   </div>
+
+  <div id="examsList"></div>
+</div>
 
   <div class="card">
     <h3>Exam Results</h3>
