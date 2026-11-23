@@ -525,6 +525,63 @@ app.post("/api/admin/questions", async (req, res) => {
       message: "Could not save question"
     });
   }
+});// Admin: Publish or Unpublish Exam
+app.patch("/api/admin/exams/:id/publish", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { is_published } = req.body;
+
+    if (typeof is_published !== "boolean") {
+      return res.status(400).json({
+        message: "Invalid publish status"
+      });
+    }
+
+    const { data, error } = await db
+      .from("exams")
+      .update({ is_published })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    if (!data) {
+      return res.status(404).json({
+        message: "Exam not found"
+      });
+    }
+
+    res.json({
+      message: is_published
+        ? "Exam published successfully"
+        : "Exam unpublished successfully",
+      exam: data
+    });
+
+  } catch (error) {
+    console.error("Publish exam error:", error.message);
+
+    res.status(500).json({
+      message: "Could not update exam status"
+    });
+  }
 });
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
