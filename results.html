@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Exam Results</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <h1>My Exam Results</h1>
+
+  <p id="message">Loading results...</p>
+  <div id="resultsList"></div>
+
+  <script>
+    const API = "https://grade12-exam-backend.onrender.com";
+    const token = sessionStorage.getItem("studentToken");
+
+    async function loadResults() {
+      const message = document.getElementById("message");
+      const list = document.getElementById("resultsList");
+
+      if (!token) {
+        message.textContent = "Please login first.";
+        return;
+      }
+
+      try {
+        const response = await fetch(API + "/api/student/results", {
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        const results = await response.json();
+
+        if (!response.ok) {
+          throw new Error(results.message || "Could not load results");
+        }
+
+        message.textContent = "Total Results: " + results.length;
+
+        if (results.length === 0) {
+          list.textContent = "You have no exam results yet.";
+          return;
+        }
+
+        results.forEach(result => {
+          const card = document.createElement("div");
+          card.className = "card";
+
+          const exam = document.createElement("h3");
+          exam.textContent = result.exams?.title || "Exam";
+
+          const score = document.createElement("p");
+          score.textContent =
+            "Score: " + result.score + " / " + result.total_marks;
+
+          const date = document.createElement("p");
+          date.textContent =
+            "Submitted: " +
+            new Date(result.submitted_at).toLocaleString();
+
+          card.append(exam, score, date);
+          list.appendChild(card);
+        });
+
+      } catch (error) {
+        message.textContent = error.message;
+      }
+    }
+
+    loadResults();
+  </script>
+
+</body>
+</html>
