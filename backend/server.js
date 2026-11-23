@@ -392,6 +392,65 @@ app.get("/api/admin/students", async (req, res) => {
     });
   }
 });
+// Admin: Create a new exam
+app.post("/api/admin/exams", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const {
+      title,
+      course_name,
+      duration_minutes
+    } = req.body;
+
+    if (!title || !course_name || !duration_minutes ||
+        Number(duration_minutes) <= 0) {
+      return res.status(400).json({
+        message: "Please enter valid exam details"
+      });
+    }
+
+    const { data, error } = await db
+      .from("exams")
+      .insert([{
+        title,
+        course_name,
+        duration_minutes: Number(duration_minutes),
+        is_published: false
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json({
+      message: "Exam created successfully",
+      exam: data
+    });
+
+  } catch (error) {
+    console.error("Create exam error:", error.message);
+
+    res.status(500).json({
+      message: "Could not create exam"
+    });
+  }
+});
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
 });
