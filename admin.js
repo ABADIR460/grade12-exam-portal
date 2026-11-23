@@ -143,6 +143,40 @@ function showCreateExam() {
   form.style.display =
     form.style.display === "none" ? "block" : "none";
 }
+document.getElementById("examForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const message = document.getElementById("examMessage");
+  message.textContent = "Saving exam...";
+
+  try {
+    const response = await fetch(API + "/api/admin/exams", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + adminToken
+      },
+      body: JSON.stringify({
+        title: document.getElementById("examTitle").value,
+        course_name: document.getElementById("courseName").value,
+        duration_minutes: Number(document.getElementById("examDuration").value)
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Could not save exam");
+    }
+
+    message.textContent = "Exam created successfully!";
+    document.getElementById("examForm").reset();
+    loadExams();
+
+  } catch (error) {
+    message.textContent = error.message;
+  }
+});
 async function loadResults() {
   document.getElementById("resultsList").textContent =
     "Results API will be connected next.";
