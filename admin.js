@@ -188,6 +188,44 @@ document.getElementById("examForm").addEventListener("submit", async function(e)
     message.textContent = error.message;
   }
 });
+document.getElementById("questionForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const message = document.getElementById("questionMessage");
+  message.textContent = "Saving question...";
+
+  try {
+    const response = await fetch(API + "/api/admin/questions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + adminToken
+      },
+      body: JSON.stringify({
+        exam_id: document.getElementById("questionExam").value,
+        question_text: document.getElementById("questionText").value,
+        option_a: document.getElementById("optionA").value,
+        option_b: document.getElementById("optionB").value,
+        option_c: document.getElementById("optionC").value,
+        option_d: document.getElementById("optionD").value,
+        correct_answer: document.getElementById("correctAnswer").value,
+        marks: Number(document.getElementById("questionMarks").value)
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Could not save question");
+    }
+
+    message.textContent = "Question saved successfully!";
+    document.getElementById("questionForm").reset();
+
+  } catch (error) {
+    message.textContent = error.message;
+  }
+});
 async function loadResults() {
   document.getElementById("resultsList").textContent =
     "Results API will be connected next.";
