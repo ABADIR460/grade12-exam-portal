@@ -110,6 +110,17 @@ async function loadExams() {
     }
 
     list.innerHTML = "";
+    const examSelect = document.getElementById("questionExam");
+
+examSelect.innerHTML =
+  '<option value="">Select Exam</option>';
+
+exams.forEach(exam => {
+  const option = document.createElement("option");
+  option.value = exam.id;
+  option.textContent = exam.title;
+  examSelect.appendChild(option);
+});
 
     const count = document.createElement("h3");
     count.textContent = "Total Exams: " + exams.length;
