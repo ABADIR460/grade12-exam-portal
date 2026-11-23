@@ -97,8 +97,45 @@ async function loadStudents() {
 
 
 async function loadExams() {
-  document.getElementById("examsList").textContent =
-    "Exam API will be connected next.";
+  const list = document.getElementById("examsList");
+  list.textContent = "Loading exams...";
+
+  try {
+    const response = await fetch(API + "/api/exams");
+
+    const exams = await response.json();
+
+    if (!response.ok) {
+      throw new Error(exams.message || "Could not load exams");
+    }
+
+    list.innerHTML = "";
+
+    const count = document.createElement("h3");
+    count.textContent = "Total Exams: " + exams.length;
+    list.appendChild(count);
+
+    exams.forEach(exam => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("h3");
+      title.textContent = exam.title;
+
+      const course = document.createElement("p");
+      course.textContent = "Course: " + (exam.course_name || "N/A");
+
+      const duration = document.createElement("p");
+      duration.textContent =
+        "Duration: " + exam.duration_minutes + " minutes";
+
+      card.append(title, course, duration);
+      list.appendChild(card);
+    });
+
+  } catch (error) {
+    list.textContent = error.message;
+  }
 }
 
 async function loadResults() {
