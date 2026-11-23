@@ -663,6 +663,43 @@ app.get("/api/admin/results", async (req, res) => {
       message: "Could not load exam results"
     });
   }
+});// Student: View My Results
+app.get("/api/student/results", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Please login first"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const { data, error } = await db
+      .from("results")
+      .select(`
+        id,
+        score,
+        total_marks,
+        submitted_at,
+        exams(title)
+      `)
+      .eq("student_id", decoded.id)
+      .order("submitted_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data || []);
+
+  } catch (error) {
+    console.error("Student results error:", error.message);
+
+    res.status(401).json({
+      message: "Could not load your results"
+    });
+  }
 });
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
