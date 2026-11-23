@@ -451,6 +451,81 @@ app.post("/api/admin/exams", async (req, res) => {
     });
   }
 });
+// Admin: Add exam question
+app.post("/api/admin/questions", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const {
+      exam_id,
+      question_text,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_answer,
+      marks
+    } = req.body;
+
+    if (
+      !exam_id ||
+      !question_text ||
+      !option_a ||
+      !option_b ||
+      !option_c ||
+      !option_d ||
+      !["A", "B", "C", "D"].includes(correct_answer)
+    ) {
+      return res.status(400).json({
+        message: "Please complete all question fields"
+      });
+    }
+
+    const { data, error } = await db
+      .from("questions")
+      .insert([{
+        exam_id,
+        question_text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_answer,
+        marks: Number(marks) || 1
+      }])
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.status(201).json({
+      message: "Question saved successfully",
+      question: data
+    });
+
+  } catch (error) {
+    console.error("Add question error:", error.message);
+
+    res.status(500).json({
+      message: "Could not save question"
+    });
+  }
+});
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
 });
