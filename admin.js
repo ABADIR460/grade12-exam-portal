@@ -137,7 +137,12 @@ async function loadExams() {
     list.textContent = error.message;
   }
 }
+function showCreateExam() {
+  const form = document.getElementById("createExamForm");
 
+  form.style.display =
+    form.style.display === "none" ? "block" : "none";
+}
 async function loadResults() {
   document.getElementById("resultsList").textContent =
     "Results API will be connected next.";
