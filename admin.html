@@ -98,6 +98,28 @@
       <option value="">Select Exam</option>
     </select>
 
+<hr>
+<h3>Bulk Upload Questions (Up to 100)</h3>
+
+<label>Select Exam</label>
+<select id="bulkExamSelect" required>
+  <option value="">Select Exam</option>
+</select>
+
+<label>Upload CSV File</label>
+<input
+  type="file"
+  id="questionsCSV"
+  accept=".csv"
+>
+
+<button type="button" onclick="uploadBulkQuestions()">
+  Upload Questions
+</button>
+
+<p id="bulkMessage"></p>
+
+
     <textarea id="questionText"
       placeholder="Write your question"
       required></textarea>
