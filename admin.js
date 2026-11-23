@@ -94,14 +94,16 @@ async function loadStudents() {
     list.textContent = error.message;
   }
 }
-
-
 async function loadExams() {
   const list = document.getElementById("examsList");
   list.textContent = "Loading exams...";
 
   try {
-    const response = await fetch(API + "/api/exams");
+    const response = await fetch(API + "/api/admin/exams", {
+      headers: {
+        "Authorization": "Bearer " + adminToken
+      }
+    });
 
     const exams = await response.json();
 
@@ -110,37 +112,43 @@ async function loadExams() {
     }
 
     list.innerHTML = "";
+
     const examSelect = document.getElementById("questionExam");
-
-examSelect.innerHTML =
-  '<option value="">Select Exam</option>';
-
-exams.forEach(exam => {
-  const option = document.createElement("option");
-  option.value = exam.id;
-  option.textContent = exam.title;
-  examSelect.appendChild(option);
-});
+    examSelect.innerHTML =
+      '<option value="">Select Exam</option>';
 
     const count = document.createElement("h3");
     count.textContent = "Total Exams: " + exams.length;
     list.appendChild(count);
 
     exams.forEach(exam => {
+      const option = document.createElement("option");
+      option.value = exam.id;
+      option.textContent = exam.title;
+      examSelect.appendChild(option);
+
       const card = document.createElement("div");
       card.className = "card";
 
       const title = document.createElement("h3");
       title.textContent = exam.title;
 
-      const course = document.createElement("p");
-      course.textContent = "Course: " + (exam.course_name || "N/A");
+      const status = document.createElement("p");
+      status.textContent = exam.is_published
+        ? "Status: Published"
+        : "Status: Unpublished";
 
-      const duration = document.createElement("p");
-      duration.textContent =
-        "Duration: " + exam.duration_minutes + " minutes";
+      const button = document.createElement("button");
+      button.textContent = exam.is_published
+        ? "Unpublish Exam"
+        : "Publish Exam";
 
-      card.append(title, course, duration);
+      button.onclick = () => toggleExamPublish(
+        exam.id,
+        !exam.is_published
+      );
+
+      card.append(title, status, button);
       list.appendChild(card);
     });
 
@@ -148,6 +156,8 @@ exams.forEach(exam => {
     list.textContent = error.message;
   }
 }
+
+
 function showCreateExam() {
   const form = document.getElementById("createExamForm");
 
