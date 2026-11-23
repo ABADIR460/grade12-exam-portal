@@ -49,10 +49,52 @@ function logout() {
   location.reload();
 }
 
+
 async function loadStudents() {
-  document.getElementById("studentsList").textContent =
-    "Student API will be connected next.";
+  const list = document.getElementById("studentsList");
+  list.textContent = "Loading students...";
+
+  try {
+    const response = await fetch(API + "/api/admin/students", {
+      headers: {
+        "Authorization": "Bearer " + adminToken
+      }
+    });
+
+    const students = await response.json();
+
+    if (!response.ok) {
+      throw new Error(students.message || "Could not load students");
+    }
+
+    list.innerHTML = "";
+
+    const count = document.createElement("h3");
+    count.textContent = "Total Students: " + students.length;
+    list.appendChild(count);
+
+    students.forEach(student => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const name = document.createElement("p");
+      name.textContent = "Name: " + student.full_name;
+
+      const id = document.createElement("p");
+      id.textContent = "Student ID: " + student.student_id;
+
+      const email = document.createElement("p");
+      email.textContent = "Email: " + (student.email || "N/A");
+
+      card.append(name, id, email);
+      list.appendChild(card);
+    });
+
+  } catch (error) {
+    list.textContent = error.message;
+  }
 }
+
 
 async function loadExams() {
   document.getElementById("examsList").textContent =
