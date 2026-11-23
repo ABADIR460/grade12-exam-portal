@@ -305,6 +305,118 @@ card.append(student, email, exam, score, date);
 if (adminToken) {
   showDashboard();
 }
+
+function parseCSVLine(line) {
+  const values = [];
+  let value = "";
+  let insideQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+
+    if (char === '"') {
+      if (insideQuotes && line[i + 1] === '"') {
+        value += '"';
+        i++;
+      } else {
+        insideQuotes = !insideQuotes;
+      }
+    } else if (char === "," && !insideQuotes) {
+      values.push(value.trim());
+      value = "";
+    } else {
+      value += char;
+    }
+  }
+
+  values.push(value.trim());
+  return values;
+}
+
+async function uploadBulkQuestions() {
+  const examId =
+    document.getElementById("bulkExamSelect").value;
+
+  const file =
+    document.getElementById("questionsCSV").files[0];
+
+  const message =
+    document.getElementById("bulkMessage");
+
+  if (!examId || !file) {
+    message.textContent = "Select exam and CSV file.";
+    return;
+  }
+
+  try {
+    const text = await file.text();
+
+    const lines = text.trim().split(/\r?\n/);
+
+    if (lines.length < 2 || lines.length > 101) {
+      throw new Error("CSV must contain 1 to 100 questions.");
+    }
+
+    const questions = lines.slice(1).map(line => {
+      const values = parseCSVLine(line);
+
+      if (values.length !== 7) {
+        throw new Error("CSV column format is incorrect.");
+      }
+
+      return {
+        exam_id: examId,
+        question_text: values[0],
+        option_a: values[1],
+        option_b: values[2],
+        option_c: values[3],
+        option_d: values[4],
+        correct_answer: values[5].toUpperCase(),
+        marks: Number(values[6])
+      };
+    });
+
+    if (questions.some(q =>
+      !q.question_text ||
+      !q.option_a ||
+      !q.option_b ||
+      !q.option_c ||
+      !q.option_d ||
+      !["A", "B", "C", "D"].includes(q.correct_answer) ||
+      !Number.isInteger(q.marks) ||
+      q.marks < 1
+    )) {
+      throw new Error("Check your question data and correct answers.");
+    }
+
+    const response = await fetch(
+      API + "/api/admin/questions/bulk",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + adminToken
+        },
+        body: JSON.stringify({ questions })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Upload failed");
+    }
+
+    message.textContent =
+      result.count + " questions uploaded successfully!";
+
+    document.getElementById("questionsCSV").value = "";
+
+  } catch (error) {
+    message.textContent = error.message;
+  }
+}
+
 async function toggleExamPublish(examId, publishStatus) {
   try {
     const response = await fetch(
