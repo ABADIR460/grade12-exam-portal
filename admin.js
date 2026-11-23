@@ -236,11 +236,56 @@ document.getElementById("questionForm").addEventListener("submit", async functio
     message.textContent = error.message;
   }
 });
-async function loadResults() {
-  document.getElementById("resultsList").textContent =
-    "Results API will be connected next.";
-}
 
+async function loadResults() {
+  const list = document.getElementById("resultsList");
+  list.textContent = "Loading results...";
+
+  try {
+    const response = await fetch(API + "/api/admin/results", {
+      headers: {
+        "Authorization": "Bearer " + adminToken
+      }
+    });
+
+    const results = await response.json();
+
+    if (!response.ok) {
+      throw new Error(results.message || "Could not load results");
+    }
+
+    list.innerHTML = "";
+
+    const count = document.createElement("h3");
+    count.textContent = "Total Results: " + results.length;
+    list.appendChild(count);
+
+    results.forEach(result => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const student = document.createElement("p");
+      student.textContent = "Student ID: " + result.student_id;
+
+      const exam = document.createElement("p");
+      exam.textContent = "Exam: " + (result.exams?.title || result.exam_id);
+
+      const score = document.createElement("p");
+      score.textContent =
+        "Score: " + result.score + " / " + result.total_marks;
+
+      const date = document.createElement("p");
+      date.textContent = "Submitted: " +
+        new Date(result.submitted_at).toLocaleString();
+
+      card.append(student, exam, score, date);
+      list.appendChild(card);
+    });
+
+  } catch (error) {
+    list.textContent = error.message;
+  }
+}
 if (adminToken) {
   showDashboard();
 }
