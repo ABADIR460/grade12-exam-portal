@@ -210,7 +210,43 @@ app.get("/api/exams", async (req, res) => {
     });
   }
 });
+// Admin: List All Exams
+app.get("/api/admin/exams", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
 
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { data, error } = await db
+      .from("exams")
+      .select("id, title, course_name, duration_minutes, is_published, created_at")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data || []);
+
+  } catch (error) {
+    console.error("Admin exams error:", error.message);
+
+    res.status(500).json({
+      message: "Could not load admin exams"
+    });
+  }
+});
 // Start Server
 // Submit Exam Results
 app.post("/api/exams/:id/submit", async (req, res) => {
