@@ -113,7 +113,14 @@ async function loadExams() {
 
     list.innerHTML = "";
 
-    const examSelect = document.getElementById("questionExam");
+  const examSelect = document.getElementById("questionExam");
+const bulkExamSelect = document.getElementById("bulkExamSelect");
+
+examSelect.innerHTML =
+  '<option value="">Select Exam</option>';
+
+bulkExamSelect.innerHTML =
+  '<option value="">Select Exam</option>';
     examSelect.innerHTML =
       '<option value="">Select Exam</option>';
 
@@ -126,6 +133,10 @@ async function loadExams() {
       option.value = exam.id;
       option.textContent = exam.title;
       examSelect.appendChild(option);
+      const bulkOption = document.createElement("option");
+bulkOption.value = exam.id;
+bulkOption.textContent = exam.title;
+bulkExamSelect.appendChild(bulkOption);
 
       const card = document.createElement("div");
       card.className = "card";
