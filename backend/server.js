@@ -640,7 +640,16 @@ app.get("/api/admin/results", async (req, res) => {
 
     const { data, error } = await db
       .from("results")
-      .select("id, student_id, exam_id, score, total_marks, submitted_at, exams(title)")
+      .select(`
+  id,
+  student_id,
+  exam_id,
+  score,
+  total_marks,
+  submitted_at,
+  exams(title),
+  students(full_name, email)
+`)
       .order("submitted_at", { ascending: false });
 
     if (error) throw error;
