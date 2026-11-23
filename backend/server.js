@@ -701,6 +701,70 @@ app.get("/api/student/results", async (req, res) => {
     });
   }
 });
+// Admin: Bulk Upload Questions (maximum 100)
+app.post("/api/admin/questions/bulk", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { questions } = req.body;
+
+    if (!Array.isArray(questions) ||
+        questions.length === 0 ||
+        questions.length > 100) {
+      return res.status(400).json({
+        message: "Upload between 1 and 100 questions"
+      });
+    }
+
+    const valid = questions.every(q =>
+      q.exam_id &&
+      q.question_text &&
+      q.option_a &&
+      q.option_b &&
+      q.option_c &&
+      q.option_d &&
+      ["A", "B", "C", "D"].includes(q.correct_answer)
+    );
+
+    if (!valid) {
+      return res.status(400).json({
+        message: "Some questions have missing or invalid fields"
+      });
+    }
+
+    const { data, error } = await db
+      .from("questions")
+      .insert(questions)
+      .select("id");
+
+    if (error) throw error;
+
+    res.json({
+      message: "Questions uploaded successfully",
+      count: data.length
+    });
+
+  } catch (error) {
+    console.error("Bulk upload error:", error.message);
+    res.status(500).json({
+      message: "Bulk upload failed"
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
 });
