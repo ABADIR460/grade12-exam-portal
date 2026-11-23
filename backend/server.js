@@ -618,6 +618,42 @@ app.patch("/api/admin/exams/:id/publish", async (req, res) => {
       message: "Could not update exam status"
     });
   }
+});// Admin: View Exam Results
+app.get("/api/admin/results", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { data, error } = await db
+      .from("results")
+      .select("id, student_id, exam_id, score, total_marks, submitted_at, exams(title)")
+      .order("submitted_at", { ascending: false });
+
+    if (error) throw error;
+
+    res.json(data || []);
+
+  } catch (error) {
+    console.error("Admin results error:", error.message);
+
+    res.status(500).json({
+      message: "Could not load exam results"
+    });
+  }
 });
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
