@@ -278,7 +278,8 @@ async function loadResults() {
       const student = document.createElement("p");
 student.textContent =
   "Student: " + (result.students?.full_name || result.student_id);
-
+const studentId = document.createElement("p");
+studentId.textContent = "Student ID: " + result.student_id;
 const email = document.createElement("p");
 email.textContent =
   "Email: " + (result.students?.email || "Not available");
@@ -293,8 +294,7 @@ email.textContent =
       const date = document.createElement("p");
       date.textContent = "Submitted: " +
         new Date(result.submitted_at).toLocaleString();
-card.append(student, email, exam, score, date);
-    
+card.append(studentId, student, email, exam, score, date);
       list.appendChild(card);
     });
 
