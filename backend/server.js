@@ -648,7 +648,7 @@ app.get("/api/admin/results", async (req, res) => {
   total_marks,
   submitted_at,
   exams(title),
-  students(full_name, email)
+  students(student_id, full_name, email)
 `)
       .order("submitted_at", { ascending: false });
 
