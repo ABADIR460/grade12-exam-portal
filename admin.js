@@ -279,7 +279,8 @@ async function loadResults() {
 student.textContent =
   "Student: " + (result.students?.full_name || result.student_id);
 const studentId = document.createElement("p");
-studentId.textContent = "Student ID: " + result.student_id;
+studentId.textContent =
+  "Student ID: " + result.students?.student_id;
 const email = document.createElement("p");
 email.textContent =
   "Email: " + (result.students?.email || "Not available");
