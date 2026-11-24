@@ -447,3 +447,60 @@ async function toggleExamPublish(examId, publishStatus) {
     alert(error.message);
   }
 }
+async function exportResultsCSV() {
+  try {
+    const response = await fetch(API + "/api/admin/results", {
+      headers: {
+        "Authorization": "Bearer " + adminToken
+      }
+    });
+
+    const results = await response.json();
+
+    if (!response.ok) {
+      throw new Error("Could not load results");
+    }
+
+    const headers = [
+      "Student ID",
+      "Student Name",
+      "Email",
+      "Exam",
+      "Score",
+      "Total Marks",
+      "Submitted Date"
+    ];
+
+    const rows = results.map(result => [
+      result.students?.student_id || "",
+      result.students?.full_name || "",
+      result.students?.email || "",
+      result.exams?.title || "",
+      result.score,
+      result.total_marks,
+      result.submitted_at
+    ]);
+
+    const csv = [headers, ...rows]
+      .map(row => row.map(value =>
+        '"' + String(value ?? "").replace(/"/g, '""') + '"'
+      ).join(","))
+      .join("\n");
+
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;"
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "Exam_Results.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
