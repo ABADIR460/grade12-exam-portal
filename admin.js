@@ -198,7 +198,8 @@ async function loadExams() {
 
   const examSelect = document.getElementById("questionExam");
 const bulkExamSelect = document.getElementById("bulkExamSelect");
-
+const multiQuestionExam =
+  document.getElementById("multiQuestionExam");
 examSelect.innerHTML =
   '<option value="">Select Exam</option>';
 
@@ -220,7 +221,10 @@ bulkExamSelect.innerHTML =
 bulkOption.value = exam.id;
 bulkOption.textContent = exam.title;
 bulkExamSelect.appendChild(bulkOption);
-
+const multiOption = document.createElement("option");
+multiOption.value = exam.id;
+multiOption.textContent = exam.title;
+multiQuestionExam.appendChild(multiOption);
       const card = document.createElement("div");
       card.className = "card";
 
