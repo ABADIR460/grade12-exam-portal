@@ -49,6 +49,7 @@ function logout() {
   location.reload();
 }
 
+let allStudentRecords = [];
 
 async function loadStudents() {
   const list = document.getElementById("studentsList");
@@ -67,33 +68,60 @@ async function loadStudents() {
       throw new Error(students.message || "Could not load students");
     }
 
-    list.innerHTML = "";
+    allStudentRecords = students;
 
-    const count = document.createElement("h3");
-    count.textContent = "Total Students: " + students.length;
-    list.appendChild(count);
+    document.getElementById("totalStudents").textContent =
+      students.length;
 
-    students.forEach(student => {
-      const card = document.createElement("div");
-      card.className = "card";
-
-      const name = document.createElement("p");
-      name.textContent = "Name: " + student.full_name;
-
-      const id = document.createElement("p");
-      id.textContent = "Student ID: " + student.student_id;
-
-      const email = document.createElement("p");
-      email.textContent = "Email: " + (student.email || "N/A");
-
-      card.append(name, id, email);
-      list.appendChild(card);
-    });
+    displayStudents(allStudents = students);
 
   } catch (error) {
     list.textContent = error.message;
   }
 }
+
+function displayStudents(students) {
+  const list = document.getElementById("studentsList");
+  list.innerHTML = "";
+
+  students.forEach(student => {
+    const card = document.createElement("div");
+    card.className = "card";
+
+    const name = document.createElement("p");
+    name.textContent = "Name: " + student.full_name;
+
+    const id = document.createElement("p");
+    id.textContent = "Student ID: " + student.student_id;
+
+    const email = document.createElement("p");
+    email.textContent = "Email: " + (student.email || "N/A");
+
+    card.append(name, id, email);
+    list.appendChild(card);
+  });
+
+  if (students.length === 0) {
+    list.textContent = "No students found.";
+  }
+}
+
+function searchStudents() {
+  const search = document
+    .getElementById("studentSearch")
+    .value.toLowerCase().trim();
+
+  const filtered = allStudentRecords.filter(student =>
+    String(student.student_id || "").toLowerCase().includes(search) ||
+    String(student.full_name || "").toLowerCase().includes(search) ||
+    String(student.email || "").toLowerCase().includes(search)
+  );
+
+  displayStudents(filtered);
+}
+
+
+
 async function loadExams() {
   const list = document.getElementById("examsList");
   list.textContent = "Loading exams...";
