@@ -97,7 +97,14 @@ function displayStudents(students) {
     const email = document.createElement("p");
     email.textContent = "Email: " + (student.email || "N/A");
 
-    card.append(name, id, email);
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit Student";
+
+    editButton.onclick = () => {
+      editStudent(student);
+    };
+
+    card.append(name, id, email, editButton);
     list.appendChild(card);
   });
 
@@ -106,6 +113,47 @@ function displayStudents(students) {
   }
 }
 
+async function editStudent(student) {
+  const newName = prompt("Enter new student name:", student.full_name);
+  if (newName === null) return;
+
+  const newEmail = prompt("Enter new email:", student.email || "");
+  if (newEmail === null) return;
+
+  if (!newName.trim()) {
+    alert("Student name is required.");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      API + "/api/admin/students/" + student.id,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + adminToken
+        },
+        body: JSON.stringify({
+          full_name: newName.trim(),
+          email: newEmail.trim()
+        })
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Update failed");
+    }
+
+    alert("Student updated successfully!");
+    loadStudents();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
 function searchStudents() {
   const search = document
     .getElementById("studentSearch")
