@@ -574,10 +574,15 @@ async function exportStudentsCSV() {
 
     link.href = url;
     link.download = "Students.csv";
-    link.click();
+    document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
+setTimeout(() => {
+  URL.revokeObjectURL(url);
+}, 1000);
 
+alert("Students CSV exported successfully!");
   } catch (error) {
     alert(error.message);
   }
