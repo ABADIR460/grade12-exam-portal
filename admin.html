@@ -171,6 +171,30 @@ onclick="document.getElementById('addQuestionSection').style.display='block'">
 
   <p id="questionMessage"></p>
 </div>
+<hr>
+<h3>Add Multiple Questions (1–100)</h3>
+
+<form id="multipleQuestionForm">
+
+  <label>Select Exam</label>
+  <select id="multiQuestionExam" required>
+    <option value="">Select Exam</option>
+  </select>
+
+  <div id="multipleQuestions"></div>
+
+  <button type="button" onclick="addAnotherQuestion()">
+    + Add Another Question
+  </button>
+
+  <button type="submit">
+    Save All Questions
+  </button>
+
+  <p id="multipleQuestionMessage"></p>
+
+</form>
+
   <div id="examsList"></div>
 </div>
   
