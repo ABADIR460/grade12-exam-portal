@@ -642,3 +642,35 @@ alert("Students CSV exported successfully!");
     alert(error.message);
   }
 }
+async function deleteStudent(student) {
+  const confirmDelete = confirm(
+    "Are you sure you want to delete " +
+    student.full_name + "?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(
+      API + "/api/admin/students/" + student.id,
+      {
+        method: "DELETE",
+        headers: {
+          "Authorization": "Bearer " + adminToken
+        }
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || "Delete failed");
+    }
+
+    alert("Student deleted successfully!");
+    loadStudents();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
