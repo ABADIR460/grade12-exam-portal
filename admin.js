@@ -674,3 +674,12 @@ async function deleteStudent(student) {
     alert(error.message);
   }
 }
+function toggleQuestionForm() {
+  const section = document.getElementById("addQuestionSection");
+
+  if (section.style.display === "none") {
+    section.style.display = "block";
+  } else {
+    section.style.display = "none";
+  }
+}
