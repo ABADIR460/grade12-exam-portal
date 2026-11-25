@@ -683,3 +683,128 @@ function toggleQuestionForm() {
     section.style.display = "none";
   }
 }
+
+let multipleQuestionCount = 0;
+
+function addAnotherQuestion() {
+  if (multipleQuestionCount >= 100) {
+    alert("Maximum 100 questions allowed.");
+    return;
+  }
+
+  multipleQuestionCount++;
+
+  const container = document.getElementById("multipleQuestions");
+
+  const card = document.createElement("div");
+  card.className = "card";
+
+  card.innerHTML = `
+    <h4>Question ${multipleQuestionCount}</h4>
+
+    <textarea class="multiQuestionText"
+      placeholder="Write question" required></textarea>
+
+    <input class="multiOptionA" placeholder="Option A" required>
+    <input class="multiOptionB" placeholder="Option B" required>
+    <input class="multiOptionC" placeholder="Option C" required>
+    <input class="multiOptionD" placeholder="Option D" required>
+
+    <select class="multiCorrectAnswer" required>
+      <option value="">Correct Answer</option>
+      <option value="A">A</option>
+      <option value="B">B</option>
+      <option value="C">C</option>
+      <option value="D">D</option>
+    </select>
+
+    <input class="multiQuestionMarks"
+      type="number" value="1" min="1" required>
+
+    <button type="button" class="removeQuestion">
+      Remove Question
+    </button>
+  `;
+
+  card.querySelector(".removeQuestion").onclick = function() {
+    card.remove();
+    updateQuestionNumbers();
+  };
+
+  container.appendChild(card);
+}
+
+function updateQuestionNumbers() {
+  const cards = document.querySelectorAll("#multipleQuestions .card");
+  multipleQuestionCount = cards.length;
+
+  cards.forEach((card, index) => {
+    card.querySelector("h4").textContent = "Question " + (index + 1);
+  });
+}
+
+document.getElementById("multipleQuestionForm")
+.addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const message = document.getElementById("multipleQuestionMessage");
+  const examId = document.getElementById("multiQuestionExam").value;
+  const cards = document.querySelectorAll("#multipleQuestions .card");
+
+  if (!examId) {
+    message.textContent = "Please select an exam.";
+    return;
+  }
+
+  if (cards.length === 0) {
+    message.textContent = "Please add at least one question.";
+    return;
+  }
+
+  message.textContent = "Saving questions...";
+
+  try {
+    const questions = Array.from(cards).map(card => ({
+      exam_id: examId,
+      question_text: card.querySelector(".multiQuestionText").value.trim(),
+      option_a: card.querySelector(".multiOptionA").value.trim(),
+      option_b: card.querySelector(".multiOptionB").value.trim(),
+      option_c: card.querySelector(".multiOptionC").value.trim(),
+      option_d: card.querySelector(".multiOptionD").value.trim(),
+      correct_answer: card.querySelector(".multiCorrectAnswer").value,
+      marks: Number(card.querySelector(".multiQuestionMarks").value)
+    }));
+
+    if (questions.some(q =>
+      !q.question_text || !q.option_a || !q.option_b ||
+      !q.option_c || !q.option_d ||
+      !["A", "B", "C", "D"].includes(q.correct_answer) ||
+      !Number.isInteger(q.marks) || q.marks < 1
+    )) {
+      throw new Error("Please complete all question fields correctly.");
+    }
+
+    const response = await fetch(API + "/api/admin/questions/bulk", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + adminToken
+      },
+      body: JSON.stringify({ questions })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Could not save questions");
+    }
+
+    message.textContent = "All questions saved successfully!";
+    document.getElementById("multipleQuestions").innerHTML = "";
+    multipleQuestionCount = 0;
+    this.reset();
+
+  } catch (error) {
+    message.textContent = error.message;
+  }
+});
