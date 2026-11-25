@@ -63,7 +63,28 @@
     <h2>Welcome Admin</h2>
     <button onclick="logout()">Logout</button>
   </div>
+<div class="card">
+  <h3>Student Management</h3>
 
+  <h4>Total Students: <span id="totalStudents">0</span></h4>
+
+  <input
+    type="text"
+    id="studentSearch"
+    placeholder="Search by Student ID, Name or Email"
+    oninput="searchStudents()"
+  >
+
+  <button onclick="loadStudents()">
+    View All Students
+  </button>
+
+  <button onclick="exportStudentsCSV()">
+    Export Students CSV
+  </button>
+
+  <div id="studentsList"></div>
+</div>
   <div class="card">
   <h3>Exam Management</h3>
 
