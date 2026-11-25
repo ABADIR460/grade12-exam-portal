@@ -427,6 +427,60 @@ app.get("/api/admin/students", async (req, res) => {
       message: "Could not load students"
     });
   }
+});app.patch("/api/admin/students/:id", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { full_name, email } = req.body;
+
+    if (!full_name || !full_name.trim()) {
+      return res.status(400).json({
+        message: "Student name is required"
+      });
+    }
+
+    const { data, error } = await db
+      .from("students")
+      .update({
+        full_name: full_name.trim(),
+        email: email || null
+      })
+      .eq("id", req.params.id)
+      .select("id,student_id,full_name,email")
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      message: "Student updated successfully",
+      student: data
+    });
+
+  } catch (error) {
+    console.error("Update student error:", error.message);
+
+    res.status(500).json({
+      message: "Could not update student"
+    });
+  }
 });
 // Admin: Create a new exam
 app.post("/api/admin/exams", async (req, res) => {
