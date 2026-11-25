@@ -481,6 +481,63 @@ app.get("/api/admin/students", async (req, res) => {
       message: "Could not update student"
     });
   }
+});app.delete("/api/admin/students/:id", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const studentId = req.params.id;
+
+    // Check whether student has exam results
+    const { data: results, error: resultError } = await db
+      .from("results")
+      .select("id")
+      .eq("student_id", studentId)
+      .limit(1);
+
+    if (resultError) throw resultError;
+
+    if (results && results.length > 0) {
+      return res.status(409).json({
+        message: "Student has exam results and cannot be deleted."
+      });
+    }
+
+    const { error } = await db
+      .from("students")
+      .delete()
+      .eq("id", studentId);
+
+    if (error) throw error;
+
+    res.json({
+      message: "Student deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Delete student error:", error.message);
+
+    res.status(500).json({
+      message: "Could not delete student"
+    });
+  }
 });
 // Admin: Create a new exam
 app.post("/api/admin/exams", async (req, res) => {
