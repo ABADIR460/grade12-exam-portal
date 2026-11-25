@@ -207,7 +207,8 @@ bulkExamSelect.innerHTML =
   '<option value="">Select Exam</option>';
     examSelect.innerHTML =
       '<option value="">Select Exam</option>';
-
+multiQuestionExam.innerHTML =
+  '<option value="">Select Exam</option>';
     const count = document.createElement("h3");
     count.textContent = "Total Exams: " + exams.length;
     list.appendChild(count);
