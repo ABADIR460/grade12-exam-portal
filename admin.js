@@ -532,3 +532,53 @@ async function exportResultsCSV() {
     alert(error.message);
   }
 }
+async function exportStudentsCSV() {
+  try {
+    const response = await fetch(API + "/api/admin/students", {
+      headers: {
+        "Authorization": "Bearer " + adminToken
+      }
+    });
+
+    const students = await response.json();
+
+    if (!response.ok) {
+      throw new Error(students.message || "Export failed");
+    }
+
+    const headers = [
+      "Student ID",
+      "Full Name",
+      "Email"
+    ];
+
+    const rows = students.map(student => [
+      student.student_id,
+      student.full_name,
+      student.email || ""
+    ]);
+
+    const csv = [headers, ...rows]
+      .map(row => row.map(value =>
+        '"' + String(value ?? "").replace(/"/g, '""') + '"'
+      ).join(","))
+      .join("\n");
+
+    const blob = new Blob(
+      ["\uFEFF" + csv],
+      { type: "text/csv;charset=utf-8;" }
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = "Students.csv";
+    link.click();
+
+    URL.revokeObjectURL(url);
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
