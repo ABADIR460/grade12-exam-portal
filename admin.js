@@ -102,7 +102,14 @@ function displayStudents(students) {
 
     editButton.onclick = () => {
       editStudent(student);
-    };
+    };const deleteButton = document.createElement("button");
+deleteButton.textContent = "Delete Student";
+
+deleteButton.onclick = () => {
+  deleteStudent(student);
+};
+
+card.appendChild(deleteButton);
 
     card.append(name, id, email, editButton);
     list.appendChild(card);
