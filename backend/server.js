@@ -672,7 +672,91 @@ app.post("/api/admin/questions", async (req, res) => {
       message: "Could not save question"
     });
   }
-});// Admin: Publish or Unpublish Exam
+});
+
+// Admin: Add multiple exam questions
+app.post("/api/admin/questions/bulk", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { questions } = req.body;
+
+    if (
+      !Array.isArray(questions) ||
+      questions.length < 1 ||
+      questions.length > 100
+    ) {
+      return res.status(400).json({
+        message: "Enter between 1 and 100 questions"
+      });
+    }
+
+    const validQuestions = questions.every(q =>
+      q.exam_id &&
+      q.question_text?.trim() &&
+      q.option_a?.trim() &&
+      q.option_b?.trim() &&
+      q.option_c?.trim() &&
+      q.option_d?.trim() &&
+      ["A", "B", "C", "D"].includes(q.correct_answer) &&
+      Number.isInteger(Number(q.marks)) &&
+      Number(q.marks) >= 1
+    );
+
+    if (!validQuestions) {
+      return res.status(400).json({
+        message: "Some question fields are invalid"
+      });
+    }
+
+    const rows = questions.map(q => ({
+      exam_id: q.exam_id,
+      question_text: q.question_text.trim(),
+      option_a: q.option_a.trim(),
+      option_b: q.option_b.trim(),
+      option_c: q.option_c.trim(),
+      option_d: q.option_d.trim(),
+      correct_answer: q.correct_answer,
+      marks: Number(q.marks)
+    }));
+
+    const { data, error } = await db
+      .from("questions")
+      .insert(rows)
+      .select();
+
+    if (error) throw error;
+
+    res.status(201).json({
+      message: "All questions saved successfully",
+      count: data.length
+    });
+
+  } catch (error) {
+    console.error("Bulk questions error:", error.message);
+
+    res.status(500).json({
+      message: "Could not save questions"
+    });
+  }
+});
+
+// Admin: Publish or Unpublish Exam
 app.patch("/api/admin/exams/:id/publish", async (req, res) => {
   try {
     const auth = req.headers.authorization;
