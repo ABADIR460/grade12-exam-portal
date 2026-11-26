@@ -254,8 +254,32 @@ manageQuestionExam.appendChild(manageOption);
         !exam.is_published
       );
 
-      card.append(title, status, button);
-      list.appendChild(card);
+      const resultStatus = document.createElement("p");
+
+resultStatus.textContent = exam.results_published
+  ? "Results: Published"
+  : "Results: Unpublished";
+
+const resultButton = document.createElement("button");
+
+resultButton.textContent = exam.results_published
+  ? "Unpublish Results"
+  : "Publish Results";
+
+resultButton.onclick = () => toggleResultsPublish(
+  exam.id,
+  !exam.results_published
+);
+
+card.append(
+  title,
+  status,
+  button,
+  resultStatus,
+  resultButton
+);
+
+list.appendChild(card);
     });
 
   } catch (error) {
