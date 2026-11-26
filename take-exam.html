@@ -119,10 +119,10 @@ function startTimer() {
       "Time: " + minutes + ":" + String(seconds).padStart(2, "0");
 
     if (remainingSeconds <= 0) {
-      clearInterval(timerInterval);
-      document.getElementById("submitBtn").disabled = true;
-      message.textContent = "Time is over.";
-    }
+  clearInterval(timerInterval);
+  document.getElementById("submitBtn").disabled = false;
+  message.textContent = "Time is over. Please submit your exam.";
+}
   }, 1000);
  }
  document.getElementById("examForm").addEventListener("submit", async function(e) {
