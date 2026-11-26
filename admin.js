@@ -820,3 +820,65 @@ document.getElementById("multipleQuestionForm")
     message.textContent = error.message;
   }
 });
+
+document.getElementById("manageQuestionExam")
+.addEventListener("change", loadManagedQuestions);
+
+async function loadManagedQuestions() {
+  const examId = document.getElementById("manageQuestionExam").value;
+  const list = document.getElementById("adminQuestionsList");
+
+  if (!examId) {
+    list.textContent = "Please select an exam.";
+    return;
+  }
+
+  list.textContent = "Loading questions...";
+
+  try {
+    const response = await fetch(
+      API + "/api/admin/exams/" + examId + "/questions",
+      {
+        headers: {
+          "Authorization": "Bearer " + adminToken
+        }
+      }
+    );
+
+    const questions = await response.json();
+
+    if (!response.ok) {
+      throw new Error(questions.message || "Could not load questions");
+    }
+
+    list.innerHTML = "";
+
+    if (questions.length === 0) {
+      list.textContent = "No questions found.";
+      return;
+    }
+
+    questions.forEach((q, index) => {
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("h4");
+      title.textContent = "Question " + (index + 1);
+
+      const question = document.createElement("p");
+      question.textContent = q.question_text;
+
+      const answer = document.createElement("p");
+      answer.textContent = "Correct Answer: " + q.correct_answer;
+
+      const marks = document.createElement("p");
+      marks.textContent = "Marks: " + q.marks;
+
+      card.append(title, question, answer, marks);
+      list.appendChild(card);
+    });
+
+  } catch (error) {
+    list.textContent = error.message;
+  }
+}
