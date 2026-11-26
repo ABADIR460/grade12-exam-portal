@@ -292,6 +292,59 @@ app.patch("/api/admin/exams/:id/results-status", async (req, res) => {
       message: "Could not update results status"
     });
   }
+});// Student: Get My Exam Results
+app.get("/api/student/results", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const { data, error } = await db
+      .from("results")
+      .select(`
+        id,
+        score,
+        total_marks,
+        submitted_at,
+        exams (
+          title,
+          results_published
+        )
+      `)
+      .eq("student_id", decoded.id)
+      .order("submitted_at", { ascending: false });
+
+    if (error) throw error;
+
+    const studentResults = (data || []).map(result => {
+      const published =
+        result.exams?.results_published === true;
+
+      return {
+        exam_title: result.exams?.title || "Exam",
+        results_published: published,
+        score: published ? result.score : null,
+        total_marks: published ? result.total_marks : null,
+        submitted_at: result.submitted_at
+      };
+    });
+
+    res.json(studentResults);
+
+  } catch (error) {
+    console.error("Student results error:", error.message);
+
+    res.status(500).json({
+      message: "Could not load student results"
+    });
+  }
 });
 // Start Server
 // Submit Exam Results
