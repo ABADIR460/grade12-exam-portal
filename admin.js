@@ -874,11 +874,90 @@ async function loadManagedQuestions() {
       const marks = document.createElement("p");
       marks.textContent = "Marks: " + q.marks;
 
-      card.append(title, question, answer, marks);
-      list.appendChild(card);
+const editButton = document.createElement("button");
+editButton.textContent = "Edit Question";
+editButton.onclick = () => editManagedQuestion(q);
+
+const deleteButton = document.createElement("button");
+deleteButton.textContent = "Delete Question";
+deleteButton.onclick = () => deleteManagedQuestion(q.id);
+
+card.append(
+  title,
+  question,
+  answer,
+  marks,
+  editButton,
+  deleteButton
+);
+
+list.appendChild(card);
+
+      
     });
 
   } catch (error) {
     list.textContent = error.message;
+  }
+}
+
+async function editManagedQuestion(q) {
+  const questionText = prompt("Edit Question:", q.question_text);
+  if (questionText === null) return;
+
+  const optionA = prompt("Edit Option A:", q.option_a);
+  if (optionA === null) return;
+
+  const optionB = prompt("Edit Option B:", q.option_b);
+  if (optionB === null) return;
+
+  const optionC = prompt("Edit Option C:", q.option_c);
+  if (optionC === null) return;
+
+  const optionD = prompt("Edit Option D:", q.option_d);
+  if (optionD === null) return;
+
+  const correctAnswer = prompt(
+    "Correct Answer (A, B, C, D):",
+    q.correct_answer
+  );
+
+  if (correctAnswer === null) return;
+
+  const marks = prompt("Marks:", q.marks);
+  if (marks === null) return;
+
+  try {
+    const response = await fetch(
+      API + "/api/admin/questions/" + q.id,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + adminToken
+        },
+        body: JSON.stringify({
+          question_text: questionText,
+          option_a: optionA,
+          option_b: optionB,
+          option_c: optionC,
+          option_d: optionD,
+          correct_answer: correctAnswer.trim().toUpperCase(),
+          marks: Number(marks)
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Update failed");
+    }
+
+    alert("Question updated successfully!");
+    loadManagedQuestions();
+
+  } catch (error) {
+    alert(error.message);
   }
 }
