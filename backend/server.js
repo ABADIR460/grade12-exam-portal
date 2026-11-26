@@ -1000,3 +1000,75 @@ app.get("/api/admin/exams/:id/questions", async (req, res) => {
     });
   }
 });
+
+app.patch("/api/admin/questions/:id", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const {
+      question_text,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_answer,
+      marks
+    } = req.body;
+
+    if (
+      !question_text?.trim() ||
+      !option_a?.trim() ||
+      !option_b?.trim() ||
+      !option_c?.trim() ||
+      !option_d?.trim() ||
+      !["A", "B", "C", "D"].includes(correct_answer) ||
+      !Number.isInteger(Number(marks)) ||
+      Number(marks) < 1
+    ) {
+      return res.status(400).json({
+        message: "Please complete all fields correctly"
+      });
+    }
+
+    const { data, error } = await db
+      .from("questions")
+      .update({
+        question_text: question_text.trim(),
+        option_a: option_a.trim(),
+        option_b: option_b.trim(),
+        option_c: option_c.trim(),
+        option_d: option_d.trim(),
+        correct_answer,
+        marks: Number(marks)
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      message: "Question updated successfully",
+      question: data
+    });
+
+  } catch (error) {
+    console.error("Update question error:", error.message);
+    res.status(500).json({
+      message: "Could not update question"
+    });
+  }
+});
