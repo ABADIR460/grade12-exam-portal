@@ -232,7 +232,7 @@ app.get("/api/admin/exams", async (req, res) => {
 
     const { data, error } = await db
       .from("exams")
-      .select("id, title, course_name, duration_minutes, is_published, created_at")
+      .select("id, title, course_name, duration_minutes, is_published, results_published, created_at")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
