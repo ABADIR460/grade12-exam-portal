@@ -200,9 +200,12 @@ async function loadExams() {
 const bulkExamSelect = document.getElementById("bulkExamSelect");
 const multiQuestionExam =
   document.getElementById("multiQuestionExam");
+   const manageQuestionExam =
+  document.getElementById("manageQuestionExam"); 
 examSelect.innerHTML =
   '<option value="">Select Exam</option>';
-
+manageQuestionExam.innerHTML =
+  '<option value="">Select Exam</option>';
 bulkExamSelect.innerHTML =
   '<option value="">Select Exam</option>';
     examSelect.innerHTML =
