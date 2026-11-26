@@ -229,6 +229,10 @@ const multiOption = document.createElement("option");
 multiOption.value = exam.id;
 multiOption.textContent = exam.title;
 multiQuestionExam.appendChild(multiOption);
+      const manageOption = document.createElement("option");
+manageOption.value = exam.id;
+manageOption.textContent = exam.title;
+manageQuestionExam.appendChild(manageOption);
       const card = document.createElement("div");
       card.className = "card";
 
