@@ -286,7 +286,35 @@ list.appendChild(card);
     list.textContent = error.message;
   }
 }
+async function toggleResultsPublish(examId, publish) {
+  try {
+    const response = await fetch(
+      API + "/api/admin/exams/" + examId + "/results-status",
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + adminToken
+        },
+        body: JSON.stringify({
+          results_published: publish
+        })
+      }
+    );
 
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Update failed");
+    }
+
+    alert(data.message);
+    loadExams();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
 
 function showCreateExam() {
   const form = document.getElementById("createExamForm");
