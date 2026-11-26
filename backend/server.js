@@ -246,6 +246,52 @@ app.get("/api/admin/exams", async (req, res) => {
       message: "Could not load admin exams"
     });
   }
+});// Admin: Publish or Unpublish Exam Results
+app.patch("/api/admin/exams/:id/results-status", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { results_published } = req.body;
+
+    if (typeof results_published !== "boolean") {
+      return res.status(400).json({
+        message: "Invalid results status"
+      });
+    }
+
+    const { data, error } = await db
+      .from("exams")
+      .update({ results_published })
+      .eq("id", req.params.id)
+      .select("id, title, results_published")
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      message: "Results status updated successfully",
+      exam: data
+    });
+
+  } catch (error) {
+    console.error("Results status error:", error.message);
+    res.status(500).json({
+      message: "Could not update results status"
+    });
+  }
 });
 // Start Server
 // Submit Exam Results
