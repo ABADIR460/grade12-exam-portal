@@ -963,3 +963,40 @@ app.post("/api/admin/questions/bulk", async (req, res) => {
 app.listen(PORT, () => {
   console.log("Grade 12 Exam Portal running on port " + PORT);
 });
+
+// Admin: List questions for an exam
+app.get("/api/admin/exams/:id/questions", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { data, error } = await db
+      .from("questions")
+      .select("*")
+      .eq("exam_id", req.params.id)
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    res.json(data || []);
+
+  } catch (error) {
+    console.error("List questions error:", error.message);
+
+    res.status(500).json({
+      message: "Could not load questions"
+    });
+  }
+});
