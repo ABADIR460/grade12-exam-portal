@@ -961,3 +961,35 @@ async function editManagedQuestion(q) {
     alert(error.message);
   }
 }
+
+async function deleteManagedQuestion(id) {
+  const confirmed = confirm(
+    "Are you sure you want to delete this question?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const response = await fetch(
+      API + "/api/admin/questions/" + id,
+      {
+        method: "DELETE",
+        headers: {
+          "Authorization": "Bearer " + adminToken
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Delete failed");
+    }
+
+    alert("Question deleted successfully!");
+    loadManagedQuestions();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
