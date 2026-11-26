@@ -1072,3 +1072,45 @@ app.patch("/api/admin/questions/:id", async (req, res) => {
     });
   }
 });
+
+app.delete("/api/admin/questions/:id", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { data, error } = await db
+      .from("questions")
+      .delete()
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      message: "Question deleted successfully",
+      question: data
+    });
+
+  } catch (error) {
+    console.error("Delete question error:", error.message);
+
+    res.status(500).json({
+      message: "Could not delete question"
+    });
+  }
+});
