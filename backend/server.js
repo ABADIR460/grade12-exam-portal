@@ -335,7 +335,7 @@ app.get("/api/student/results", async (req, res) => {
   submitted_at: result.submitted_at
 };
     });
-
+console.log("Student results:", studentResults);
     res.json(studentResults);
 
   } catch (error) {
