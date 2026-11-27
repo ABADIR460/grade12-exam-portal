@@ -316,16 +316,7 @@ app.get("/api/student/results", async (req, res) => {
 
     const { data, error } = await db
       .from("results")
-      .select(`
-        id,
-        score,
-        total_marks,
-        submitted_at,
-        exams (
-          title,
-          results_published
-        )
-      `)
+      .select("id, score, total_marks, submitted_at, exams(title,course_name,results_published)")
       .eq("student_id", decoded.id)
       .order("submitted_at", { ascending: false });
 
