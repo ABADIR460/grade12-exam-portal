@@ -1098,3 +1098,34 @@ async function editExam(exam) {
     alert(error.message);
   }
 }
+async function deleteExam(examId) {
+  const confirmDelete = confirm(
+    "Are you sure you want to delete this exam?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const response = await fetch(
+      API + "/api/admin/exams/" + examId,
+      {
+        method: "DELETE",
+        headers: {
+          "Authorization": "Bearer " + adminToken
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Could not delete exam");
+    }
+
+    alert("Exam deleted successfully!");
+    loadExams();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
