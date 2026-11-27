@@ -217,6 +217,26 @@ studentName.textContent = "Name: " +
     averageText.textContent = "Average: " + average.toFixed(2) + "%";
 
     resultsList.append(total, averageText);
+    const signatures = document.createElement("div");
+
+signatures.style.display = "flex";
+signatures.style.justifyContent = "space-between";
+signatures.style.marginTop = "60px";
+signatures.style.gap = "30px";
+
+signatures.innerHTML = `
+  <div style="width:45%; text-align:center;">
+    <p>________________________</p>
+    <strong>Teacher's Signature</strong>
+  </div>
+
+  <div style="width:45%; text-align:center;">
+    <p>________________________</p>
+    <strong>Principal's Signature</strong>
+  </div>
+`;
+
+resultsList.appendChild(signatures);
 
     document.getElementById("totalScore").textContent =
       "Total Score: " + totalScore + "/" + totalMarks;
