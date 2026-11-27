@@ -98,13 +98,12 @@ async function loadStudentResults() {
     infoTitle.textContent = "Student Information";
 
     const studentId = document.createElement("p");
-    studentId.textContent = "Student ID: " + 
-      (localStorage.getItem("studentId") || "Your Student ID");
+studentId.textContent = "Student ID: " +
+  (sessionStorage.getItem("studentId") || "Your Student ID");
 
-    const studentName = document.createElement("p");
-    studentName.textContent = "Name: " +
-      (localStorage.getItem("studentName") || "Student");
-
+const studentName = document.createElement("p");
+studentName.textContent = "Name: " +
+  (sessionStorage.getItem("studentName") || "Student");
     studentInfo.append(infoTitle, studentId, studentName);
     resultsList.appendChild(studentInfo);
 
