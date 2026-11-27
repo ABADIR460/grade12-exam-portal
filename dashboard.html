@@ -146,7 +146,16 @@ async function loadStudentResults() {
       resultsList.textContent = "No published results available yet.";
       return;
     }
+const academyTitle = document.createElement("h2");
+academyTitle.textContent = "GRADE 12 EXAM PORTAL";
+academyTitle.style.textAlign = "center";
+academyTitle.style.color = "#1e3a8a";
 
+const reportTitle = document.createElement("h3");
+reportTitle.textContent = "OFFICIAL STUDENT REPORT CARD";
+reportTitle.style.textAlign = "center";
+
+resultsList.append(academyTitle, reportTitle);
     // Student Information
     const studentInfo = document.createElement("div");
     studentInfo.className = "card";
