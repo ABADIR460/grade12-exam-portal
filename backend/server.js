@@ -327,12 +327,13 @@ app.get("/api/student/results", async (req, res) => {
         result.exams?.results_published === true;
 
       return {
-        exam_title: result.exams?.title || "Exam",
-        results_published: published,
-        score: published ? result.score : null,
-        total_marks: published ? result.total_marks : null,
-        submitted_at: result.submitted_at
-      };
+  exam_title: result.exams?.title || "Exam",
+  subject: result.exams?.course_name || "General",
+  results_published: published,
+  score: published ? result.score : null,
+  total_marks: published ? result.total_marks : null,
+  submitted_at: result.submitted_at
+};
     });
 
     res.json(studentResults);
