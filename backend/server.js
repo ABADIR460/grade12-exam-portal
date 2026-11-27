@@ -71,7 +71,15 @@ app.post("/api/register", async (req, res) => {
       .select("id, student_id, full_name, email")
       .single();
 
-    if (error) throw error;
+    if (error) {
+  if (error.code === "23505") {
+    return res.status(409).json({
+      message: "Student ID or Email already registered. Please Login."
+    });
+  }
+
+  throw error;
+}
 
     res.status(201).json({
       message: "Registration successful",
