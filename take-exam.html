@@ -169,9 +169,7 @@ function startTimer() {
     clearInterval(timerInterval);
 
     message.textContent =
-      "Exam submitted successfully! Your score: " +
-      result.score + " / " + result.total_marks;
-
+  "Exam submitted successfully! Your answers have been saved. Results will be available after the teacher publishes them.";
   } catch (error) {
     message.textContent = error.message;
     submitBtn.disabled = false;
