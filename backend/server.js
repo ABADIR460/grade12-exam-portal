@@ -1213,3 +1213,58 @@ app.delete("/api/admin/questions/:id", async (req, res) => {
     });
   }
 });
+// Admin: Update Exam
+app.patch("/api/admin/exams/:id", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const { title, course_name, duration_minutes } = req.body;
+
+    if (!title || !course_name || !duration_minutes ||
+        Number(duration_minutes) <= 0) {
+      return res.status(400).json({
+        message: "Please provide valid exam details"
+      });
+    }
+
+    const { data, error } = await db
+      .from("exams")
+      .update({
+        title: title.trim(),
+        course_name: course_name.trim(),
+        duration_minutes: Number(duration_minutes)
+      })
+      .eq("id", req.params.id)
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    res.json({
+      message: "Exam updated successfully",
+      exam: data
+    });
+
+  } catch (error) {
+    console.error("Update exam error:", error.message);
+
+    res.status(500).json({
+      message: "Could not update exam"
+    });
+  }
+});
