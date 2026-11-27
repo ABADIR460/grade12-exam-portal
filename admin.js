@@ -1055,3 +1055,46 @@ async function deleteManagedQuestion(id) {
     alert(error.message);
   }
 }
+async function editExam(exam) {
+  const title = prompt("Enter new exam title:", exam.title);
+  if (title === null || title.trim() === "") return;
+
+  const subject = prompt(
+    "Enter new subject:",
+    exam.course_name || ""
+  );
+  if (subject === null || subject.trim() === "") return;
+
+  const duration = prompt(
+    "Enter duration in minutes:",
+    exam.duration_minutes
+  );
+  if (duration === null || Number(duration) <= 0) return;
+
+  try {
+    const response = await fetch(API + "/api/admin/exams/" + exam.id, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + adminToken
+      },
+      body: JSON.stringify({
+        title: title.trim(),
+        course_name: subject.trim(),
+        duration_minutes: Number(duration)
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Could not update exam");
+    }
+
+    alert("Exam updated successfully!");
+    loadExams();
+
+  } catch (error) {
+    alert(error.message);
+  }
+}
