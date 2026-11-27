@@ -35,24 +35,78 @@
     <button id="logoutBtn">Logout</button>
     <p id="message"></p>
   </main>
+<script>
+  const token = sessionStorage.getItem("studentToken");
+  const name = sessionStorage.getItem("studentName");
 
-  <script>
-    const token = sessionStorage.getItem("studentToken");
-    const name = sessionStorage.getItem("studentName");
+  const API = "https://grade12-exam-backend.onrender.com";
 
-    if (!token) {
-      window.location.href = "login.html";
+  if (!token) {
+    window.location.href = "login.html";
+  }
+
+  document.getElementById("studentName").textContent =
+    name || "Student";
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    sessionStorage.removeItem("studentToken");
+    sessionStorage.removeItem("studentName");
+    window.location.href = "login.html";
+  });
+
+  async function loadStudentResults() {
+    const resultsList = document.getElementById("studentResults");
+
+    resultsList.textContent = "Loading results...";
+
+    try {
+      const response = await fetch(API + "/api/student/results", {
+        headers: {
+          "Authorization": "Bearer " + token
+        }
+      });
+
+      const results = await response.json();
+
+      if (!response.ok) {
+        throw new Error(results.message || "Could not load results");
+      }
+
+      resultsList.innerHTML = "";
+
+      if (results.length === 0) {
+        resultsList.textContent = "No exam results available yet.";
+        return;
+      }
+
+      results.forEach(result => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const title = document.createElement("h3");
+        title.textContent = result.exam_title;
+
+        const score = document.createElement("p");
+
+        if (result.results_published) {
+          score.textContent =
+            "Your Score: " + result.score + " / " + result.total_marks;
+        } else {
+          score.textContent = "Results not published yet.";
+        }
+
+        card.append(title, score);
+        resultsList.appendChild(card);
+      });
+
+    } catch (error) {
+      resultsList.textContent = error.message;
     }
+  }
 
-    document.getElementById("studentName").textContent =
-      name || "Student";
+  loadStudentResults();
+</script>
 
-    document.getElementById("logoutBtn").addEventListener("click", () => {
-      sessionStorage.removeItem("studentToken");
-      sessionStorage.removeItem("studentName");
-      window.location.href = "login.html";
-    });
-  </script>
 
 </body>
 </html>
