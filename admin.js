@@ -271,12 +271,22 @@ resultButton.onclick = () => toggleResultsPublish(
   !exam.results_published
 );
 
+const editButton = document.createElement("button");
+editButton.textContent = "Edit Exam";
+editButton.onclick = () => editExam(exam);
+
+const deleteButton = document.createElement("button");
+deleteButton.textContent = "Delete Exam";
+deleteButton.onclick = () => deleteExam(exam.id);
+
 card.append(
   title,
   status,
   button,
   resultStatus,
-  resultButton
+  resultButton,
+  editButton,
+  deleteButton
 );
 
 list.appendChild(card);
