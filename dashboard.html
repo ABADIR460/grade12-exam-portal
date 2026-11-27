@@ -60,7 +60,8 @@
     window.location.href = "login.html";
   });
 
-  async function loadStudentResults() {
+  
+async function loadStudentResults() {
   const resultsList = document.getElementById("studentResults");
 
   resultsList.textContent = "Loading results...";
@@ -79,57 +80,84 @@
     }
 
     resultsList.innerHTML = "";
-const publishedResults = results.filter(
-  result => result.results_published
-);
 
-let totalScore = 0;
-let totalMarks = 0;
+    const publishedResults = results.filter(
+      result => result.results_published
+    );
 
-publishedResults.forEach(result => {
-  totalScore += Number(result.score || 0);
-  totalMarks += Number(result.total_marks || 0);
-});
-
-const average = totalMarks > 0
-  ? (totalScore / totalMarks) * 100
-  : 0;
-
-document.getElementById("totalScore").textContent =
-  "Total Score: " + totalScore + " / " + totalMarks;
-
-document.getElementById("averageScore").textContent =
-  "Average: " + average.toFixed(2) + "%";
-
-document.getElementById("completedExams").textContent =
-  "Completed Exams: " + publishedResults.length;
-    if (results.length === 0) {
-      resultsList.textContent = "No exam results available yet.";
+    if (publishedResults.length === 0) {
+      resultsList.textContent = "No published results available yet.";
       return;
     }
 
-    results.forEach(result => {
-      const card = document.createElement("div");
-      card.className = "card";
+    // Student Information
+    const studentInfo = document.createElement("div");
+    studentInfo.className = "card";
 
-      const subject = document.createElement("h3");
-      subject.textContent = result.subject || "General";
+    const infoTitle = document.createElement("h3");
+    infoTitle.textContent = "Student Information";
 
-      const title = document.createElement("p");
-      title.textContent = "Exam: " + result.exam_title;
+    const studentId = document.createElement("p");
+    studentId.textContent = "Student ID: " + 
+      (localStorage.getItem("studentId") || "Your Student ID");
 
-      const score = document.createElement("p");
+    const studentName = document.createElement("p");
+    studentName.textContent = "Name: " +
+      (localStorage.getItem("studentName") || "Student");
 
-      if (result.results_published) {
-        score.textContent =
-          "Your Score: " + result.score + " / " + result.total_marks;
-      } else {
-        score.textContent = "Results not published yet.";
-      }
+    studentInfo.append(infoTitle, studentId, studentName);
+    resultsList.appendChild(studentInfo);
 
-      card.append(subject, title, score);
-      resultsList.appendChild(card);
+    // Subject Results Table
+    const heading = document.createElement("h3");
+    heading.textContent = "Subject Results";
+    resultsList.appendChild(heading);
+
+    const table = document.createElement("table");
+    table.style.width = "100%";
+    table.border = "1";
+
+    const header = table.insertRow();
+    header.insertCell().textContent = "Subject";
+    header.insertCell().textContent = "Score";
+
+    let totalScore = 0;
+    let totalMarks = 0;
+
+    publishedResults.forEach(result => {
+      const row = table.insertRow();
+
+      row.insertCell().textContent = result.subject || "General";
+      row.insertCell().textContent =
+        result.score + "/" + result.total_marks;
+
+      totalScore += Number(result.score || 0);
+      totalMarks += Number(result.total_marks || 0);
     });
+
+    resultsList.appendChild(table);
+
+    // Total and Average
+    const total = document.createElement("h3");
+    total.textContent = "Total: " + totalScore + "/" + totalMarks;
+
+    const average = totalMarks > 0
+      ? (totalScore / totalMarks) * 100
+      : 0;
+
+    const averageText = document.createElement("h3");
+    averageText.textContent = "Average: " + average.toFixed(2) + "%";
+
+    resultsList.append(total, averageText);
+
+    document.getElementById("totalScore").textContent =
+      "Total Score: " + totalScore + "/" + totalMarks;
+
+    document.getElementById("averageScore").textContent =
+      "Average: " + average.toFixed(2) + "%";
+
+    document.getElementById("completedExams").textContent =
+      "Completed Exams: " + publishedResults.length;
 
   } catch (error) {
     resultsList.textContent = error.message;
@@ -137,6 +165,7 @@ document.getElementById("completedExams").textContent =
 }
 
 loadStudentResults();
+
 </script>
 
 
