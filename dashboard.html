@@ -6,6 +6,60 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Student Dashboard</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+@media print {
+  body {
+    background: white !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  #studentResults,
+  #studentResults * {
+    visibility: visible;
+  }
+
+  #studentResults {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+    color: black;
+    background: white;
+  }
+
+  button {
+    display: none !important;
+  }
+}
+
+#studentResults {
+  border: 2px solid #1e3a8a;
+  padding: 20px;
+  border-radius: 10px;
+  background: white;
+  color: #222;
+}
+
+#studentResults table {
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+#studentResults th,
+#studentResults td {
+  border: 1px solid #333;
+  padding: 10px;
+  text-align: left;
+}
+
+#studentResults h3 {
+  color: #1e3a8a;
+}
+</style>
 </head>
 <body>
 
