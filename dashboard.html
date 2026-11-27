@@ -79,7 +79,30 @@
     }
 
     resultsList.innerHTML = "";
+const publishedResults = results.filter(
+  result => result.results_published
+);
 
+let totalScore = 0;
+let totalMarks = 0;
+
+publishedResults.forEach(result => {
+  totalScore += Number(result.score || 0);
+  totalMarks += Number(result.total_marks || 0);
+});
+
+const average = totalMarks > 0
+  ? (totalScore / totalMarks) * 100
+  : 0;
+
+document.getElementById("totalScore").textContent =
+  "Total Score: " + totalScore + " / " + totalMarks;
+
+document.getElementById("averageScore").textContent =
+  "Average: " + average.toFixed(2) + "%";
+
+document.getElementById("completedExams").textContent =
+  "Completed Exams: " + publishedResults.length;
     if (results.length === 0) {
       resultsList.textContent = "No exam results available yet.";
       return;
