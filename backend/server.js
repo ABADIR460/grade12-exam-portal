@@ -1059,9 +1059,7 @@ app.post("/api/admin/questions/bulk", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log("Grade 12 Exam Portal running on port " + PORT);
-});
+
 
 // Admin: List questions for an exam
 app.get("/api/admin/exams/:id/questions", async (req, res) => {
@@ -1267,4 +1265,63 @@ app.patch("/api/admin/exams/:id", async (req, res) => {
       message: "Could not update exam"
     });
   }
+});
+// Admin: Delete Exam
+app.delete("/api/admin/exams/:id", async (req, res) => {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth) {
+      return res.status(401).json({
+        message: "Unauthorized"
+      });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({
+        message: "Admin access required"
+      });
+    }
+
+    const examId = req.params.id;
+
+    // Check whether exam has submitted results
+    const { data: existingResults, error: checkError } = await db
+      .from("results")
+      .select("id")
+      .eq("exam_id", examId)
+      .limit(1);
+
+    if (checkError) throw checkError;
+
+    if (existingResults && existingResults.length > 0) {
+      return res.status(409).json({
+        message: "Cannot delete this exam because student results exist."
+      });
+    }
+
+    const { error } = await db
+      .from("exams")
+      .delete()
+      .eq("id", examId);
+
+    if (error) throw error;
+
+    res.json({
+      message: "Exam deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Delete exam error:", error.message);
+
+    res.status(500).json({
+      message: "Could not delete exam"
+    });
+  }
+});
+app.listen(PORT, () => {
+  console.log("Grade 12 Exam Portal running on port " + PORT);
 });
